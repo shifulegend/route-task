@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      { "matcher": "mcp__claude-code-remote__create_session",
+        "hooks": [ { "type": "command", "command": "python3 ~/.claude/bin/rs-guard.py", "timeout": 10, "statusMessage": "Checking remote-session protocol" } ] }
+    ],
+    "SessionStart": [
+      { "hooks": [ { "type": "command", "command": "~/.claude/bin/rs-start.sh", "timeout": 10 } ] }
+    ]
+  }
+}

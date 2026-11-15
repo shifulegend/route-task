@@ -13,11 +13,11 @@ Before planning or coding in any session:
 
 ## Project Context
 <!-- Summarized from docs/ai/project-overview.md — keep in sync -->
-- **Purpose**: TODO
-- **Stack**: TODO
-- **Architecture**: TODO
-- **Key directories**: TODO
-- **Commands**: TODO (setup, dev, test, lint, typecheck, build, run)
+- **Purpose**: Token-saving model routing and work placement for Claude Code
+- **Stack**: Markdown rules/skills, Node scripts, Python guard
+- **Architecture**: Always-on rules in config/CLAUDE.routing.md; procedures in skills/route-task; helpers in agents/; tools in bin/
+- **Key directories**: skills/, agents/, bin/, config/, docs/
+- **Commands**: `sh install.sh`; `node --check bin/*.mjs`; `python3 -m py_compile bin/rs-guard.py` (setup, dev, test, lint, typecheck, build, run)
 
 ## Core Rules
 - Smallest sensible modular unit per responsibility

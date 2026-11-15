@@ -1,81 +1,38 @@
-# Golden Template — shifulegend
+# route-task
 
-A cross-tool AI development template for starting any new repository with a documentation-first, modular, verification-first, security-first workflow.
+Same result, fewer Claude tokens. A Claude Code skill and set of always-on rules that send each part of a task to the cheapest tool that does it right, and send heavy work to the right place.
 
-## What's Included
+![license](https://img.shields.io/badge/license-MIT-blue)
 
-### Shared Canonical Memory (`docs/ai/`)
-| File | Purpose |
-|------|---------|
-| `project-overview.md` | Project purpose, stack, architecture |
-| `engineering-rules.md` | Modularity, zero-hardcoding, verification rules |
-| `mistakes.md` | Central mistake log — read first every session |
-| `decision-log.md` | Timestamped decisions |
-| `change-trace.md` | Notable changes per sub-step |
-| `session-start-checklist.md` | Mandatory startup checklist |
-| `commit-log-guidance.md` | Commit message standards |
-| `tool-sync-policy.md` | How tool-specific files stay in sync |
-| `architecture.md` | System architecture, components, integrations |
-| `testing-strategy.md` | Test types, coverage targets, regression policy |
-| `context-efficiency.md` | Token-minimization: structural code search, repo-map, output compression, prompt-cache ordering |
-| `readme-guidance.md` | README standard: 5-second filter, anatomy, archetypes, accessibility, pre-commit checklist |
+## What it does
+- **Who does it (D0 to D4):** script > free model (`cheap-llm`, stronger `agy-ask`) > `haiku-helper` > `sonnet-helper` > the main model.
+- **Where it runs (R0 to R3):** this machine > GitHub CI > cloud session > Colab.
+- **Private data first:** bank, tax, mail, vault and credentials stay local; scripts refuse input that looks private.
+- **Remote sessions:** naming, tags, limit of 4, ledger, archive order, enforced by a hook (`bin/rs-guard.py`).
 
-### GitHub Copilot (`.github/`)
-- `copilot-instructions.md` — repo-wide instructions
-- `instructions/*.instructions.md` — scoped instructions (core, docs, tests, config)
-- `prompts/*.prompt.md` — reusable prompts (start-session, plan, implement, review, debug, memory)
+## Measured result (made-up data, with vs without)
+| Work | Claude cost |
+|---|---|
+| Bulk labelling / classifying | 37% to 70% cheaper |
+| Code descriptions | 55% cheaper |
+| Keyword labelling | 12% cheaper (noise) |
+| Small tasks, summaries | 1 to 4 cents dearer (rules are extra text) |
 
-### Claude Code (`CLAUDE.md` + `.claude/`)
-- `CLAUDE.md` — project memory entrypoint
-- `.claude/rules/` — modular scoped rules (core, docs, tests, config)
-- `.claude/skills/` — reusable skills (session-start, project-memory, review-verify, implement)
+Always-on rules add about 2,400 tokens (about 1 cent) per session. Details: `docs/RESULTS.md`.
 
-### Google Antigravity (`gemini/` + `.agents/`)
-- `gemini/GEMINI.md` — global Antigravity rules
-- `AGENTS.md` — cross-tool portability layer
-- `.agents/rules/` — scoped rules (core, docs, tests, config)
-- `.agents/workflows/` — reusable workflows (start-session, review-verify, update-memory)
+## Install
+```sh
+git clone https://github.com/shifulegend/route-task && cd route-task
+sh install.sh        # copies skills, agents, bin into ~/.claude (backs up first)
+```
+Then: append `config/CLAUDE.routing.md` to `~/.claude/CLAUDE.md`; merge `config/settings.hooks.example.json` into `~/.claude/settings.json`; copy `config/rs-cloud-envs.example.json` to `~/.claude/state/rs-cloud-envs.json` with your own environment ids.
 
-### Security & Dependencies
-- `.github/workflows/ci.yml` — CI: lint, typecheck, test, build (stub steps pass until you replace them; keep any `run:` value containing `: ` in quotes)
-- `.github/dependabot.yml` — automated dependency updates
-- `CODEOWNERS` — auto-assign reviewers per path
+Free models need a local OmniRoute (set `OMNIROUTE_BASE_URL`, `OMNIROUTE_API_KEY`). Without it, `cheap-llm` exits 3 and the rules fall back to Haiku.
 
-### Developer Experience
-- `LICENSE` — MIT
-- `.gitignore` — comprehensive multi-stack gitignore
-- `.env.example` — safe env template (never commit `.env`)
-- `CITATION.cff` — GitHub-native citation support
-- `docs/SETUP.md` — first-time setup guide
-- `docs/BRANCHES.md` — branch strategy and protection rules
-- `docs/README.template.md` — README skeleton that follows `docs/ai/readme-guidance.md`
+## Customize
+Add your own private-data words to the `PRIVATE` list in `bin/cheap-llm.mjs` and `bin/agy-ask.mjs` (bank names, client names). Edit host names and limits in the skill to match your setup.
 
-## How to Use
+## Layout
+`config/` rules and examples · `skills/route-task` procedures · `skills/skill-optimizer` writing and A/B-testing skills · `agents/` helpers · `bin/` tools · `docs/` template memory
 
-### Create a New Repo from This Template
-1. Go to [github.com/shifulegend/golden-template](https://github.com/shifulegend/golden-template)
-2. Click **Use this template** → **Create a new repository**
-3. Fill in the new repo details and create
-
-### After Creating from Template
-1. `cp .env.example .env` and fill in real values
-2. Update `docs/ai/project-overview.md` — purpose, stack, architecture
-3. Update `docs/ai/architecture.md` — components, data flow, integrations
-4. Update `docs/SETUP.md` — actual commands for your stack
-5. Uncomment the right `dependabot.yml` ecosystem block
-6. Enable branch protection rules (Settings → Branches)
-7. Rewrite `README.md` for your project: copy `docs/README.template.md` over it, fill it in following `docs/ai/readme-guidance.md`, and run its checklist
-8. Search for `TODO` markers and fill them in
-9. Run your first AI session using the `start-session` prompt/skill/workflow
-
-## Core Principles
-- **Extremely modular** — smallest sensible unit, explicit interfaces
-- **Zero hard-coding** — config files, env vars, schemas, or databases for all behavior
-- **Documentation-first** — docs updated proactively every session by AI agents
-- **Mistake-first sessions** — always read mistake log before coding
-- **Granular commits** — one small, reviewable sub-step per commit
-- **Security-first** — CODEOWNERS, Dependabot, CodeQL, secret scanning, .env.example
-- **Cross-tool portable** — Claude Code, GitHub Copilot, and Google Antigravity all supported
-
-## AI Agent Dynamic Update Rule
-All `docs/ai/` files and tool adapter files are **dynamic**. Any AI agent working in a repo created from this template must proactively update them every session — without waiting for explicit user prompts. See `docs/ai/tool-sync-policy.md`.
+Built from the [golden-template](https://github.com/shifulegend/golden-template). License: MIT.

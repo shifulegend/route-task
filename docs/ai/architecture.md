@@ -3,28 +3,30 @@
 <!-- Last updated: TIMESTAMP -->
 
 ## System Overview
-<!-- TODO: High-level diagram or description of how the system works end-to-end -->
+Task -> privacy gate -> split into subtasks -> tag D and R -> cheapest rung that works -> check with a tool -> retry one rung up on failure.
 
 ## Components
 | Component | Responsibility | Technology |
 |-----------|---------------|-----------|
-| TODO      | TODO          | TODO      |
+| routing rules | `config/CLAUDE.routing.md` | always-on token-saving policy |
+| skill | `skills/route-task` | remote sessions, Colab, teams, permissions |
+| guard | `bin/rs-guard.py` | blocks non-compliant `create_session` |
 
 ## Data Flow
-<!-- TODO: How data moves through the system -->
+Large inputs are passed by file path to a script, free model or helper; only a file and at most 10 summary lines return to the main model.
 
 ## Integration Points
-<!-- TODO: External APIs, services, databases, queues -->
+OmniRoute, Antigravity CLI, Claude Code remote sessions, Colab.
 | Integration | Purpose | Auth Method |
 |-------------|---------|-------------|
-| TODO        | TODO    | TODO        |
+| OmniRoute | free models | optional |
 
 ## Key Design Decisions
 <!-- Link to docs/ai/decision-log.md for full rationale -->
-- TODO
+- see docs/ai/engineering-rules.md
 
 ## Known Constraints & Limitations
-- TODO
+- see docs/ai/engineering-rules.md
 
 ## Security Boundaries
-<!-- TODO: Where secrets live, what network boundaries exist, trust levels -->
+No secrets in this repo. Private data never goes to free models, CI, cloud or Colab; scripts refuse input that looks private (exit 4).
