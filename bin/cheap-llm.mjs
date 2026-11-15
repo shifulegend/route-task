@@ -1,18 +1,16 @@
 #!/usr/bin/env node
-// cheap-llm: one-shot text job through the local OmniRoute (free/cheap models). NON-PRIVATE TEXT ONLY.
+// cheap-llm: one-shot text job through any OpenAI-compatible backend: your OmniRoute or a provider API (free/cheap models). NON-PRIVATE TEXT ONLY.
 // usage: cheap-llm [--task default|fast|code|long|reason] [--system "..."] [--max 800] [--prompt "..."]   (prompt from stdin if --prompt absent)
 // input over 12 KB: the long chain, max_tokens at least 12000 and a 140 s limit per model are chosen automatically
 // big input that fails whole is retried in pieces of about 9 KB
 // exit: 0 ok | 3 every model failed (do the job with haiku-helper) | 4 refused: input looks private
 import fs from 'fs'; import os from 'os'; import path from 'path';
 
-const CHAINS = {
-  default: ['groq/openai/gpt-oss-120b', 'groq/qwen/qwen3.8-27b', 'gemini/gemini-2.5-flash-lite'],
-  fast: ['groq/openai/gpt-oss-20b', 'groq/qwen/qwen3.8-27b', 'groq/openai/gpt-oss-120b'],
-  code: ['mistral/codestral-latest', 'groq/openai/gpt-oss-120b', 'gemini/gemini-2.5-flash-lite'],
-  long: ['gemini/gemini-2.5-flash-lite', 'openrouter/nvidia/nemotron-3-ultra-550b-a55b:free'],
-  reason: ['openrouter/nvidia/nemotron-3-ultra-550b-a55b:free', 'groq/openai/gpt-oss-120b'],
-};
+// Config (optional): ~/.claude/cheap-llm.json  { "base_url", "api_key_env" | "api_key", "chains": {default,fast,code,long,reason: [model,...]}, "piece_chain": [model,...] }
+// Backend = any OpenAI-compatible endpoint: your OmniRoute (its own routing/combos decide the model; use combo names here), or a provider API (Groq, Gemini, OpenRouter, Mistral, OpenAI...).
+let CFG = {}; try { CFG = JSON.parse(fs.readFileSync(path.join(os.homedir(), '.claude', 'cheap-llm.json'), 'utf8')); } catch {}
+const CHAINS = { default: ['auto'], ...(CFG.chains || {}) };   // 'auto' = let your OmniRoute decide (or put your combo name / provider model id)
+for (const k of ['fast', 'code', 'long', 'reason']) CHAINS[k] ||= CHAINS.default;   // unset chains fall back to default
 const PRIVATE = [
   /\b[A-Z]{5}[0-9]{4}[A-Z]\b/,                       // PAN
   /\b\d{4}\s?\d{4}\s?\d{4}\b/,                       // Aadhaar-like
@@ -31,13 +29,13 @@ const task = big && (!CHAINS[opt.task] || opt.task === 'default' || opt.task ===
 if (!user.trim()) { console.error('cheap-llm: empty prompt'); process.exit(2); }
 if (PRIVATE.some(r => r.test(user) || r.test(opt.system || ''))) { console.error('cheap-llm: REFUSED, input looks private. Use haiku-helper/sonnet-helper or a script.'); process.exit(4); }
 
-const base = process.env.OMNIROUTE_BASE_URL || (process.platform === 'win32' ? 'http://127.0.0.1:39596/v1' : 'http://127.0.0.1:20128/v1');
-let key = process.env.OMNIROUTE_API_KEY;
+const base = CFG.base_url || process.env.CHEAP_LLM_BASE_URL || process.env.OMNIROUTE_BASE_URL || (process.platform === 'win32' ? 'http://127.0.0.1:39596/v1' : 'http://127.0.0.1:20128/v1');
+let key = CFG.api_key || (CFG.api_key_env && process.env[CFG.api_key_env]) || process.env.CHEAP_LLM_API_KEY || process.env.OMNIROUTE_API_KEY;
 if (!key) {
   const dir = process.env.OMNIROUTE_DATA_DIR || path.join(os.homedir(), '.omniroute');
   try { key = (fs.readFileSync(path.join(dir, '.env'), 'utf8').match(/^OMNIROUTE_API_KEY=(.*)$/m) || [])[1]?.trim().replace(/^["']|["']$/g, ''); } catch {}
 }
-if (!key) { console.error('cheap-llm: no OmniRoute key found'); process.exit(3); }
+if (!key) { console.error('cheap-llm: no backend configured. Set up OmniRoute (OMNIROUTE_API_KEY) or a provider API key; see config/cheap-llm.example.json and skills/route-task/reference/cheap-models.md. Falling back: use haiku-helper.'); process.exit(3); }
 
 async function ask(text, chain, isBig, cap) {
   const messages = [...(opt.system ? [{ role: 'system', content: String(opt.system) }] : []), { role: 'user', content: text }];
@@ -62,7 +60,7 @@ if (out === null && big) {
   const units = /\n### /.test(user) ? user.split(/\n(?=### )/) : user.split('\n'); const pieces = ['']; const sep = '\n';
   for (const u of units) { if (pieces[pieces.length - 1].length + u.length > 9000 && pieces[pieces.length - 1]) pieces.push(''); pieces[pieces.length - 1] += (pieces[pieces.length - 1] ? sep : '') + u; }
   console.error(`cheap-llm: retrying in ${pieces.length} pieces`); const parts = [];
-  for (const p of pieces) { const o = p.trim() ? await ask(p, ['groq/qwen/qwen3.8-27b', 'groq/openai/gpt-oss-120b', 'gemini/gemini-2.5-flash-lite'], false, 4000) : ''; if (o === null) process.exit(3); parts.push(o); await new Promise(r => setTimeout(r, 500)); }
+  for (const p of pieces) { const o = p.trim() ? await ask(p, CFG.piece_chain || CHAINS.default, false, 4000) : ''; if (o === null) process.exit(3); parts.push(o); await new Promise(r => setTimeout(r, 500)); }
   out = parts.filter(Boolean).join('\n');
 }
 if (out === null) process.exit(3);

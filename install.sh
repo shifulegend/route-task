@@ -7,4 +7,5 @@ for p in skills/route-task skills/skill-optimizer; do [ -e "$D/$p" ] && cp -r "$
 for f in agents/*.md bin/*; do [ -e "$D/$f" ] && cp "$D/$f" "$B/"; cp "$H/$f" "$D/$f"; done
 chmod +x "$D"/bin/*
 [ -f "$D/state/rs-ledger.md" ] || printf '# Remote-session ledger\n# format: <session_id> | <name prefix> | <purpose> | <status> | <result location>\n' > "$D/state/rs-ledger.md"
+sh "$D/bin/route-doctor.sh" || true
 echo "Installed. Now: (1) append config/CLAUDE.routing.md to ~/.claude/CLAUDE.md, (2) merge config/settings.hooks.example.json into ~/.claude/settings.json, (3) copy config/rs-cloud-envs.example.json to ~/.claude/state/rs-cloud-envs.json with your ids. Backups: $B"

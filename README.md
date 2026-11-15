@@ -27,10 +27,12 @@ sh install.sh        # copies skills, agents, bin into ~/.claude (backs up first
 ```
 Then: append `config/CLAUDE.routing.md` to `~/.claude/CLAUDE.md`; merge `config/settings.hooks.example.json` into `~/.claude/settings.json`; copy `config/rs-cloud-envs.example.json` to `~/.claude/state/rs-cloud-envs.json` with your own environment ids.
 
-Free models need a local OmniRoute (set `OMNIROUTE_BASE_URL`, `OMNIROUTE_API_KEY`). Without it, `cheap-llm` exits 3 and the rules fall back to Haiku.
+Check and fix dependencies any time: `sh ~/.claude/bin/route-doctor.sh` (the skill runs it itself on first use and walks you through the fixes).
+
+**Free models are optional and backend-agnostic.** `cheap-llm` works with your own OmniRoute setup (its routing and combos decide the model) or any OpenAI-compatible provider API (Groq, Gemini, OpenRouter, Mistral, OpenAI...). Configure in `~/.claude/cheap-llm.json` (see `config/cheap-llm.example.json`). With no backend, the rules fall back to Haiku.
 
 ## Customize
-Add your own private-data words to the `PRIVATE` list in `bin/cheap-llm.mjs` and `bin/agy-ask.mjs` (bank names, client names). Edit host names and limits in the skill to match your setup.
+Add your own private-data words (bank, client names) as `private_words` in `~/.claude/cheap-llm.json`. Edit host names and limits in the skill to match your setup.
 
 ## Layout
 `config/` rules and examples · `skills/route-task` procedures · `skills/skill-optimizer` writing and A/B-testing skills · `agents/` helpers · `bin/` tools · `docs/` template memory

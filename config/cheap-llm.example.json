@@ -1,0 +1,16 @@
+{
+  "base_url": "http://127.0.0.1:20128/v1",
+  "api_key_env": "OMNIROUTE_API_KEY",
+  "chains": {
+    "default": ["auto"],
+    "long": ["auto"],
+    "code": ["auto"]
+  },
+  "piece_chain": ["auto"],
+  "private_words": ["Your Bank Name", "Client Name"],
+  "_notes": [
+    "OmniRoute: keep base_url as above; 'auto' or your own combo name lets OmniRoute's routing pick the model.",
+    "Provider API instead: base_url e.g. https://api.groq.com/openai/v1 , https://generativelanguage.googleapis.com/v1beta/openai , https://openrouter.ai/api/v1 , https://api.mistral.ai/v1 ; api_key_env = name of the env var holding your key; chains = that provider's model ids.",
+    "Unset chains fall back to default. Delete this _notes key if you like."
+  ]
+}

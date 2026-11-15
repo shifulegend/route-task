@@ -1,5 +1,7 @@
 # Colab (GPU / long CPU)
 
+Optional route. Needs the official `colab` CLI signed in (route-doctor checks it). The helper script and keep-alive guard named below are examples from the author's setup: adapt or drop them.
+
 Source: your own infrastructure notes on Colab sessions. Read them before use. Never paste `~/.config/colab-cli/sessions.json` (holds tokens). Last check: no sessions active.
 
 ## Tools on the server

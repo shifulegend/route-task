@@ -1,15 +1,24 @@
 # cheap-llm and agy-ask (NON-PRIVATE text only)
 
-## cheap-llm (OmniRoute, free models): one-shot text jobs
-`node ~/.claude/bin/cheap-llm.mjs --task default --max 800 < input.txt` (az: `node C:\Users\ASCO\.claude\bin\cheap-llm.mjs`)
+## Setup (first use, once): pick a backend
+`cheap-llm` talks to any OpenAI-compatible endpoint. If it exits 3 with "no backend configured", ask the owner ONCE which they want, then write `~/.claude/cheap-llm.json` (template: `config/cheap-llm.example.json` in the repo). Never invent or guess a key; the owner supplies it as an environment variable.
+1. **OmniRoute** (recommended: one local endpoint, your own routing/combos/fallbacks decide the model, free tiers pooled). Keep `base_url` at your OmniRoute (default `http://127.0.0.1:20128/v1`), key in `OMNIROUTE_API_KEY`, chains `["auto"]` or your combo names. Routing is the owner's: edit it in OmniRoute, not here.
+2. **Provider API keys** (no OmniRoute): set `base_url` and `api_key_env` for one provider (Groq, Gemini OpenAI-compatible endpoint, OpenRouter, Mistral, OpenAI...) and list that provider's model ids in `chains`. Fall-back models in a chain can be any ids the endpoint serves.
+3. **Neither**: skip D1; use `haiku-helper` for D2 work. The saving is smaller but nothing breaks.
+Optional in the same file: `piece_chain` (models for the 9 KB retry), `private_words` (your own names that must never leave the machine: banks, clients).
 
-| `--task` | Use for | Chain (first that answers) |
-|---|---|---|
-| `default` | extract, classify, reformat, short summary, rewrite | groq/openai/gpt-oss-120b (0.7 s) > groq/qwen/qwen3.8-27b > gemini/gemini-2.5-flash-lite |
-| `fast` | trivial transforms, yes/no, tagging | groq/openai/gpt-oss-20b (0.3 s) > qwen3.8-27b > gpt-oss-120b |
-| `code` | small snippets, regex, boilerplate (must be run or tested) | mistral/codestral-latest > gpt-oss-120b > gemini-2.5-flash-lite |
-| `long` | big input; picked automatically above about 12 KB | gemini/gemini-2.5-flash-lite (1M) > nemotron-3-ultra :free (1M) |
-| `reason` | puzzles, multi-step logic when a Claude tier is overkill | nemotron-3-ultra-550b :free (about 9 s) > gpt-oss-120b |
+## cheap-llm: one-shot text jobs
+`node ~/.claude/bin/cheap-llm.mjs --task default --max 800 < input.txt`
+
+`--task` picks a chain from your config (`default`, `fast`, `code`, `long`, `reason`; unset ones use `default`). Suggested meaning:
+
+| `--task` | Use for |
+|---|---|
+| `default` | extract, classify, reformat, short summary, rewrite |
+| `fast` | trivial transforms, yes/no, tagging |
+| `code` | small snippets, regex, boilerplate (must be run or tested) |
+| `long` | big input; picked automatically above about 12 KB |
+| `reason` | puzzles, multi-step logic when a Claude tier is overkill |
 
 - Exit 3: every model failed; hand the job to `haiku-helper`. Exit 4: input looked private; never override it.
 - One call per job. Free tiers rate-limit (429): do not loop.
@@ -17,12 +26,11 @@
   - Write to a file, never to my context: `node ~/.claude/bin/cheap-llm.mjs --system "<format, no explanation>" < in.txt > out.csv`, then `wc -l out.csv`.
   - Input over about 12 KB: nothing to set. The tool itself switches to the `long` chain (the Groq models refuse big input with http 413), allows up to 12000 output tokens and waits up to 140 s per model. `--max` and `--task long` are needed only to override that (about 3 tokens per short label line: 200 lines: 3000; 600 lines: 9000).
   - One call can take 3 minutes: give the Bash call a 300 s timeout.
-- Weak spots: Groq qwen3.8 and codestral got a small time-arithmetic task wrong; no arithmetic with them.
-- Table source: probe of 2026-11-06, one call each, all returned correct JSON extraction.
+- Weak spots: small free models get arithmetic wrong; use a script for numbers.
 
-## agy-ask (Google's official Antigravity CLI, owner's Google AI Pro account)
+## agy-ask (optional: Google's official Antigravity CLI, needs your own Google account)
 For one-off jobs that need a stronger model than the free OmniRoute ones.
-`node ~/.claude/bin/agy-ask.mjs --model gemini-3.8-flash-high < input.txt` (az: `node C:\Users\ASCO\.claude\bin\agy-ask.mjs`)
+`node ~/.claude/bin/agy-ask.mjs --model gemini-3.8-flash-high < input.txt`
 
 - Models: `gemini-3.8-flash-high` (default, about 12 s), `claude-sonnet-4-6`, `claude-opus-4-6-thinking` (hardest reasoning that is still non-private; saves Anthropic usage), `gpt-oss-120b-medium`.
 - Limits: min 10 s between calls; max 30 per day; one call at a time per host; headless in an empty temp dir (any tool needing permission is auto-denied); refuses when the host has under 450 MB free RAM (one call peaks at about 270 MB).

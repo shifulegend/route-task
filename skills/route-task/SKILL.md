@@ -8,6 +8,14 @@ description: Procedures for work that leaves the main session or this server. Us
 Owner's goal: work smarter, not harder: the least tokens for the maximum output. Opus (the orchestrator, "me") decides, delegates and checks.
 The "Model routing" lines in `~/.claude/CLAUDE.md` are always in context and decide the tags: P (private), D0-D4 (who), R0-R3 (where). This file holds only the procedures behind them. Loading it costs about one extra turn, so it is loaded only when a section below is needed.
 
+## 0a. First-run setup (do this once, and whenever a tool says "not found" or "no backend configured")
+Run `sh ~/.claude/bin/route-doctor.sh`. It lists every dependency (node, python3, claude CLI, the hooks, the routing rules, cloud environment ids, a free-model backend; optional: gh, agy, colab, agent teams) as ok / MISSING / optional, with the fix for each.
+- Tell the owner in plain words what is missing and what it costs them (a missing backend = less saving, nothing breaks).
+- Walk them through each MISSING item, one at a time, and make the safe edits yourself (copy example files, merge the hook with the `update-config` skill). Ask before touching `settings.json` or `CLAUDE.md`, and back them up first.
+- Free-model backend: ask once: **OmniRoute** (their own routing and fallbacks) or **provider API keys** (Groq, Gemini, OpenRouter, Mistral, OpenAI...) or neither. Details: `reference/cheap-models.md` "Setup". The owner supplies keys as environment variables; never invent, print or store a key in a file you commit.
+- Optional items: mention them only when the task needs them (CI needs `gh`, GPU jobs need `colab`, cross-checking workers need agent teams).
+- Run the doctor again at the end and report what is still open.
+
 ## 0. Split first
 1. Break the task into subtasks, each with one output that can be checked by itself.
 2. Classify and route EACH subtask (section 1). One task may use several routes; independent subtasks run in parallel.
@@ -15,7 +23,7 @@ The "Model routing" lines in `~/.claude/CLAUDE.md` are always in context and dec
 Keep a subtask with me when handing it over would cost more than it saves (size gate). Tag silently and act; write the tags out only in a plan the owner will read (`label 600 reviews: D1 R0, cheap-llm`).
 
 ## 1. Classify each subtask: P, then D, then R
-**P. Private?** Touches private data: bank, tax, bank, tax, ERP, ITR, personal mail, vault, any credential: it stays on this server, done by a local script or me. Anthropic models only, or no AI. Never `cheap-llm`, `agy-ask`, R1-R3 or a team.
+**P. Private?** Touches private data: bank, tax, ERP, ITR, personal mail, vault, any credential: it stays on this server, done by a local script or me. Anthropic models only, or no AI. Never `cheap-llm`, `agy-ask`, R1-R3 or a team.
 Private AND heavy: split it. The private part stays here (a script that streams the file, or me). Only a part holding no private data may go out, anything tested outside uses made-up data, and the plan line says "made-up data". Cannot be separated: all of it stays here, and I tell the owner if this server cannot handle it.
 
 **D. Difficulty decides WHO does it** (lowest tag that fits): D0 script, no AI / D1 `cheap-llm` (free), stronger: `agy-ask` / D2 `haiku-helper` / D3 `sonnet-helper` / D4 me. The full table, the size gate, the prompt format and the checks: [reference/handover.md](reference/handover.md).
