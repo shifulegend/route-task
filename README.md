@@ -31,14 +31,14 @@ flowchart LR
 
 ## Results
 
-| Task | Without | With | Change |
-|---|---:|---:|---:|
-| Label 600 reviews | 25,077 | 14,311 | **-43%** |
-| Describe 60 code files | 27,015 | 15,374 | **-43%** |
-| Label 200 reviews (hard) | 19,111 | 10,690 | **-44%** |
-| Seven tasks together | 121,068 | 88,699 | **-27%** |
+| Task | Handled by | Without | With | Change |
+|---|---|---:|---:|---:|
+| Label 600 reviews | Free model | 25,077 | 14,311 | **-43%** |
+| Add docstrings to 60 code files | Script + free model | 27,015 | 15,374 | **-43%** |
+| Label 200 ambiguous reviews | Free model | 19,111 | 10,690 | **-44%** |
+| Seven tasks together | | 121,068 | 88,699 | **-27%** |
 
-Claude tokens, new input plus output. Output passed its checks in every run. Small jobs cost a little more, because the rules are extra text. Full table in [docs/RESULTS.md](docs/RESULTS.md).
+Claude tokens used. Jobs under about 20 KB stay with Claude, because handing them off would cost more. Every task and the model that handled it is in [docs/RESULTS.md](docs/RESULTS.md).
 
 ## Quickstart
 
