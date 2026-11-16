@@ -40,6 +40,7 @@ The saving comes from keeping bulk reading and long writing off the main model.
 | JSON / structured | parse it, compare to schema, spot-check 3 items against the source |
 | Extraction / counts | grep or count in the source; sample at most 3 rows |
 | Summaries / rewrites | confirm 3 named facts or numbers appear; do not re-read the whole thing |
+| Drafted text (docstrings, descriptions, summaries) | `draft-check.py` finds empty, missing, duplicate, over-long and filler lines; I skim only the 3 lines it prints. Exit 1 = redo the whole batch one rung up |
 | Bulk file work | file count and a `git status`; open 1 file at random |
 
 - Check fails: retry once one rung up, then do it myself. Never more than one retry. A failed sample, or a helper that itself says "approximate" or "may need a read", means the whole batch failed: do not patch only the sampled item.

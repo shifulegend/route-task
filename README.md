@@ -105,7 +105,7 @@ The check is pattern based. It catches the obvious cases, not all of them. Treat
 | `skills/route-task/` | The procedures |
 | `skills/skill-optimizer/` | Writing and A/B-testing skills |
 | `agents/` | `haiku-helper`, `sonnet-helper` |
-| `bin/` | `cheap-llm`, `rs-guard`, `rs-start`, `route-doctor` |
+| `bin/` | `cheap-llm`, `draft-check`, `rs-guard`, `rs-start`, `route-doctor` |
 | `docs/` | Results, architecture |
 
 ## Contributing
