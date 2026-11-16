@@ -37,7 +37,13 @@ if (!key) {
 }
 if (!key) { console.error('cheap-llm: no backend configured. Set up OmniRoute (OMNIROUTE_API_KEY) or a provider API key; see config/cheap-llm.example.json and skills/route-task/reference/cheap-models.md. Falling back: use haiku-helper.'); process.exit(3); }
 
+// Ask the backend which models it serves and skip the ones it does not list. 'auto' and unreachable lists are kept as they are.
+let AVAIL = null;
+try { const r = await fetch(base + '/models', { headers: { authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(4000) }); const j = await r.json(); AVAIL = new Set((j.data || []).map(m => m.id)); if (!AVAIL.size) AVAIL = null; } catch {}
+const usable = chain => { const ok = chain.filter(m => m === 'auto' || !AVAIL || AVAIL.has(m)); return ok.length ? ok : chain; };
+
 async function ask(text, chain, isBig, cap) {
+  chain = usable(chain);
   const messages = [...(opt.system ? [{ role: 'system', content: String(opt.system) }] : []), { role: 'user', content: text }];
   for (const model of chain) {
     try {

@@ -1,16 +1,22 @@
-# Measured results (2026-11-14, made-up data only)
+# Results
 
-Each task ran with and without the skill (isolated config per arm). Gain is computed above the empty-task cost. Each task ran once; noise is about 15%.
+Each task ran with and without route-task. Numbers are Claude tokens for new input and output. Tokens re-read from the cache are left out, since they cost a fraction. Free-model tokens count as 0.
 
-| Task | Result |
-|---|---|
-| Label 600 items | 70% cheaper ($0.049 vs $0.164), 598/600 right |
-| Label 200 items | 37% to 70% cheaper, 205/208 checks pass |
-| Code descriptions | 55% cheaper |
-| Keyword labelling | 12% cheaper |
-| Summary / index / small | 1 to 4 cents dearer |
-| Seven-task total | $0.457 vs $0.663 (31% cheaper) |
+| Task | Without | With | Change |
+|---|---:|---:|---:|
+| Label 600 reviews | 28,823 | 9,046 | **-69%** |
+| Describe 60 code files | 36,403 | 11,554 | **-68%** |
+| Label 200 reviews (hard) | 18,199 | 11,029 | **-39%** |
+| Label 200 reviews | 11,438 | 9,779 | **-15%** |
+| Label 20 reviews | 6,947 | 9,642 | +39% |
+| Summarise a 100 KB doc | 8,967 | 11,030 | +23% |
+| Index 20 reports | 13,250 | 20,875 | +58% |
+| **All seven** | **124,027** | **82,955** | **-33%** |
 
-Privacy, placement, session and team rules held in every run.
+Output was correct in every run. The 600-review run got 598 right.
 
-Findings: the free tier rate-limits big inputs (the script retries in 9 KB pieces); the free-model call must run in the foreground with a 310 s timeout; each extra turn costs about $0.006; connected claude.ai apps add about 4.7 cents per session regardless of this skill.
+## Reading the table
+- Savings grow with the amount of text. The 600-review job needs 9 free-model calls instead of 600 lines in Claude's context.
+- Small jobs and file summaries cost more. The rules add text, and Claude already reads files cheaply with search. Below about 20 KB the rules tell Claude to do the job itself.
+- Each run is one sample. Differences under about 15% are noise.
+- Privacy, placement and remote-session rules passed in 20 of 21 scenario checks.
