@@ -6,7 +6,7 @@
 
 A skill and a short set of always-on rules for [Claude Code](https://claude.com/claude-code). Each part of a job goes to the cheapest tool that does it right.
 
-![license](https://img.shields.io/badge/license-MIT-blue) ![for](https://img.shields.io/badge/for-Claude%20Code-orange) ![tokens](https://img.shields.io/badge/Claude%20tokens-33%25%20fewer-brightgreen)
+![license](https://img.shields.io/badge/license-MIT-blue) ![for](https://img.shields.io/badge/for-Claude%20Code-orange) ![tokens](https://img.shields.io/badge/Claude%20tokens-27%25%20fewer-brightgreen)
 
 </div>
 
@@ -33,12 +33,12 @@ flowchart LR
 
 | Task | Without | With | Change |
 |---|---:|---:|---:|
-| Label 600 reviews | 28,823 | 9,046 | **-69%** |
-| Describe 60 code files | 36,403 | 11,554 | **-68%** |
-| Label 200 reviews | 18,199 | 11,029 | **-39%** |
-| Seven tasks together | 124,027 | 82,955 | **-33%** |
+| Label 600 reviews | 25,077 | 14,311 | **-43%** |
+| Describe 60 code files | 27,015 | 15,374 | **-43%** |
+| Label 200 reviews (hard) | 19,111 | 10,690 | **-44%** |
+| Seven tasks together | 121,068 | 88,699 | **-27%** |
 
-Claude tokens, new input plus output. Output was correct in every run. Small jobs cost a little more, because the rules are extra text. Full table in [docs/RESULTS.md](docs/RESULTS.md).
+Claude tokens, new input plus output. Output passed its checks in every run. Small jobs cost a little more, because the rules are extra text. Full table in [docs/RESULTS.md](docs/RESULTS.md).
 
 ## Quickstart
 
