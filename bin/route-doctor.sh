@@ -15,5 +15,4 @@ if [ "$B" = config ] || [ -n "$OMNIROUTE_API_KEY$CHEAP_LLM_API_KEY" ] || [ -f "$
   U=$(node -e 'try{const c=JSON.parse(require("fs").readFileSync(process.env.HOME+"/.claude/cheap-llm.json","utf8"));console.log(c.base_url||"")}catch{console.log("")}' 2>/dev/null); U=${U:-${OMNIROUTE_BASE_URL:-http://127.0.0.1:20128/v1}}
   if command -v curl >/dev/null && curl -s -m 4 -o /dev/null "$U/models"; then ok "backend answers at $U"; else no "backend not reachable at $U" "start OmniRoute, or fix base_url in ~/.claude/cheap-llm.json"; fi
 else no "no free-model backend configured" "choose one: (1) install OmniRoute and set OMNIROUTE_API_KEY, or (2) copy config/cheap-llm.example.json to ~/.claude/cheap-llm.json with a provider base_url, api_key_env and model ids (Groq, Gemini, OpenRouter, Mistral, OpenAI...). Or skip: Haiku helper is used instead"; fi
-echo "OPTIONAL"
-echo; echo "Fix the MISSING lines, then run this again. Optional lines only unlock extra routes."
+echo; echo "Fix the MISSING lines, then run this again."
